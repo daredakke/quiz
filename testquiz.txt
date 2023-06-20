@@ -1,0 +1,37 @@
+Valid two answer one correct
+*True
+-False
+
+Valid three answer one correct
+*True
+-False
+-None of the above
+Valid five answer one correct no empty line preceding
+*Yes
+-No
+-Maybe
+-Don't know
+-Could you repeat the question?
+
+asdfasf
+Valid four answer three correct
+-One
+*Two
+*Three
+*Four
+
+I forgot to add the answers for this one
+-True
+*False
+
+Valid four answer one correct with spaces
+
+-One
+
+*Two
+
+-Three
+
+-Four
+
+

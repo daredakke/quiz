@@ -34,4 +34,4 @@ Navigate to the `quiz` directory and in your terminal type `nim c -r main.nim`. 
 
 ### CSS
 
-If you have a `css` directory present in the `quiz` directory, it and any CSS files inside will be copied to the `build` directory and linked appropriately in the exported HTML file.
+If you have a `css` directory present in the `quiz` directory, it and any CSS files inside will be merged and minified before written as a single stylesheet to the `build` directory and linked appropriately in the exported HTML file.

@@ -79,6 +79,7 @@ proc getTemplateHTMLAsString(path: string): string =
 proc buildQuizHTML(quizTitle: string, filePath: string): string =
   var
     quiz: seq[Question] = importQuizFromText(filePath)
+    stylesheets: string
     pageTemplate: string
     questionTemplate: string
     answerRadioTemplate: string
@@ -110,16 +111,23 @@ proc buildQuizHTML(quizTitle: string, filePath: string): string =
 
     inc idCounter
 
+  if dirExists("css"):
+    for f in walkDir("css"):
+      let ext: string = f.path.splitFile().ext
+
+      if ext == ".css":
+        stylesheets = stylesheets & &"<link rel=\"stylesheet\" href=\"{f.path}\">\n"
+
   result = pageTemplate
+    .replace("{{stylesheets}}", stylesheets)
     .replace("{{questions}}", result)
     .replace("{{quizTitle}}", quizTitle)
 
 
 proc copyCSSToBuildDir() =
-  if not dirExists("css"):
-    return
-
-  copyFileToDir("css/style.css", "build")
+  if dirExists("css"):
+    createDir("build/css")
+    copyDir("css", "build/css")
 
 
 proc exportQuizAsHTML(quizTitle: string, filePath: string, deleteBuildDir: string) =

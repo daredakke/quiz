@@ -1,7 +1,9 @@
+import std/os
 import std/strutils
 import std/strformat
 
 type InvalidQuestion = object of CatchableError
+type FileDoesNotExist = object of CatchableError
 
 
 type Answer = object
@@ -113,8 +115,20 @@ proc buildQuizHTML(quizTitle: string, filePath: string): string =
     .replace("{{quizTitle}}", quizTitle)
 
 
-proc exportQuizAsHTML(quizTitle: string, filePath: string) =
+proc copyCSSToBuildDir() =
+  if not dirExists("css"):
+    return
+
+  copyFileToDir("css/style.css", "build")
+
+
+proc exportQuizAsHTML(quizTitle: string, filePath: string, deleteBuildDir: string) =
   var outFile: File
+
+  if deleteBuildDir.toLowerAscii() != "n":
+    removeDir("build")
+
+  createDir("build")
 
   let
     title: string = quizTitle
@@ -125,7 +139,30 @@ proc exportQuizAsHTML(quizTitle: string, filePath: string) =
   outFile.write(output)
   outFile.close()
 
+  copyCSSToBuildDir()
+
+
+proc getSettingsFromUser() =
+  var deleteBuildDir: string = "n"
+
+  echo "\nPlease enter the name of the quiz - the imported quiz will use this as its filename"
+  let quizTitle: string = readLine(stdin)
+
+  echo "\nPlease enter the file path of the quiz to be imported"
+  let filePath: string = readLine(stdin)
+
+  if not fileExists(filePath):
+    raise newException(FileDoesNotExist, &"Cannot find file at {filePath}")
+
+  if dirExists("build"):
+    echo "\nDelete the existing build directory? - y/n"
+    deleteBuildDir = readLine(stdin)
+
+  exportQuizAsHTML(quizTitle, filePath, deleteBuildDir)
+
+
 proc main() =
-  exportQuizAsHTML("Test Quiz", "testquiz.txt")
+  getSettingsFromUser()
+
 
 main()

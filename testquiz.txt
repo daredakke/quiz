@@ -13,7 +13,7 @@ Valid five answer one correct no empty line preceding
 -Don't know
 -Could you repeat the question?
 
-asdfasf
+
 Valid four answer three correct
 -One
 *Two

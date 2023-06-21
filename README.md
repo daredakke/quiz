@@ -21,6 +21,8 @@ Whitespace and blank lines have no impact when importing quizzes, so you may for
 
 ## How to Use
 
+Ensure you have [Nim](https://nim-lang.org/) installed.
+
 Navigate to the `quiz` directory and in your terminal type `nim c -r main.nim`. You will be asked a series of questions.
 
 - "Please enter the name of the quiz" - e.g., `Cities of the World`

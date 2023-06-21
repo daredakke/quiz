@@ -76,6 +76,10 @@ proc getHTMLTemplateAsString(path: string): string =
     result &= line & "\n"
 
 
+proc parsedQuizDataToJSON(quiz: seq[Question]) =
+  echo "parsedQuizDataToJSON()"
+
+
 # Piece HTML templates together into a single HTML document and embed quiz 
 # data into it
 proc buildQuizHTML(quizTitle: string, filePath: string): string =
@@ -136,8 +140,6 @@ proc copyCSSToBuildDir() =
     output: string
     stylesheet, outFile: File
 
-  createDir("build/css")
-
   for f in walkDir("css"):
     # Ignore any file that isn't a stylesheet
     if f.path.splitFile().ext != ".css":
@@ -149,22 +151,27 @@ proc copyCSSToBuildDir() =
       output &= line
         .strip(true, true)
         .replace(": ", ":")
-        .replace(" {", ":")
+        .replace(" {", "{")
   
   outFile = open("build/css/style.css", fmWrite)
   outFile.write(output)
   outFile.close()
 
 
-# Create build directory and write the quiz HTML to a HTML document that 
-# reflects the title given to it
-proc exportQuizAsHTML(quizTitle: string, filePath: string, deleteBuildDir: string) =
-  var outFile: File
-
+proc createBuildDirStructure(deleteBuildDir: string) =
   if deleteBuildDir.toLowerAscii() != "n":
     removeDir("build")
 
   createDir("build")
+
+  if dirExists("css"):
+    createDir("build/css")
+
+
+# Create build directory and write the quiz HTML to a HTML document that 
+# reflects the title given to it
+proc exportQuizAsHTML(quizTitle: string, filePath: string) =
+  var outFile: File
 
   let
     title: string = quizTitle
@@ -204,7 +211,8 @@ proc getSettingsFromUser(): tuple =
 
 proc main() =
   let settings: tuple = getSettingsFromUser()
-  exportQuizAsHTML(settings.quizTitle, settings.filePath, settings.deleteBuildDir)
+  createBuildDirStructure(settings.deleteBuildDir)
+  exportQuizAsHTML(settings.quizTitle, settings.filePath)
   copyCSSToBuildDir()
 
   echo "\nQuiz exported to ./build directory\n"

@@ -24,6 +24,7 @@ proc isInvalid(self: Question): bool =
   return true
 
 
+# Parse a text file of multiple-choice questions into a data structure
 proc importQuizFromText(filePath: string): seq[Question] =
   var
     quizFile: File
@@ -66,16 +67,17 @@ proc importQuizFromText(filePath: string): seq[Question] =
   return quiz
 
 
-proc getTemplateHTMLAsString(path: string): string =
+proc getHTMLTemplateAsString(path: string): string =
   var templateFile: File
 
   templateFile = open(path, fmRead)
 
   for line in templateFile.lines():
-    result = result & line & "\n"
+    result &= line & "\n"
 
 
-# Piece templates together into a single HTML document and embed quiz data into it
+# Piece HTML templates together into a single HTML document and embed quiz 
+# data into it
 proc buildQuizHTML(quizTitle: string, filePath: string): string =
   var
     quiz: seq[Question] = importQuizFromText(filePath)
@@ -86,10 +88,10 @@ proc buildQuizHTML(quizTitle: string, filePath: string): string =
     answerCheckboxTemplate: string
     idCounter: int
 
-  pageTemplate = getTemplateHTMLAsString("templates/page.html")
-  questionTemplate = getTemplateHTMLAsString("templates/question.html")
-  answerRadioTemplate = getTemplateHTMLAsString("templates/answerRadio.html")
-  answerCheckboxTemplate = getTemplateHTMLAsString("templates/answerCheckbox.html")
+  pageTemplate = getHTMLTemplateAsString("templates/page.html")
+  questionTemplate = getHTMLTemplateAsString("templates/question.html")
+  answerRadioTemplate = getHTMLTemplateAsString("templates/answerRadio.html")
+  answerCheckboxTemplate = getHTMLTemplateAsString("templates/answerCheckbox.html")
 
   for question in quiz:
     var
@@ -100,11 +102,11 @@ proc buildQuizHTML(quizTitle: string, filePath: string): string =
       if question.correctAnswerCount > 1:
         templateToUse = answerCheckboxTemplate
 
-      answers = answers & templateToUse
+      answers &= templateToUse
         .replace("{{answerId}}", $i)
         .replace("{{answerText}}", answer.text)
 
-    result = result & questionTemplate
+    result &= questionTemplate
       .replace("{{questionText}}", question.text)
       .replace("{{answers}}", answers)
       .replace("{{questionId}}", $idCounter)
@@ -116,7 +118,7 @@ proc buildQuizHTML(quizTitle: string, filePath: string): string =
       let ext: string = f.path.splitFile().ext
 
       if ext == ".css":
-        stylesheets = stylesheets & &"<link rel=\"stylesheet\" href=\"{f.path}\">\n"
+        stylesheets &= &"<link rel=\"stylesheet\" href=\"{f.path}\">\n"
 
   result = pageTemplate
     .replace("{{stylesheets}}", stylesheets)
@@ -124,12 +126,38 @@ proc buildQuizHTML(quizTitle: string, filePath: string): string =
     .replace("{{quizTitle}}", quizTitle)
 
 
+# If CSS files are provided, merge them into a single minified style.css in 
+# the build directory
 proc copyCSSToBuildDir() =
-  if dirExists("css"):
-    createDir("build/css")
-    copyDir("css", "build/css")
+  if not dirExists("css"):
+    return
+
+  var
+    output: string
+    stylesheet, outFile: File
+
+  createDir("build/css")
+
+  for f in walkDir("css"):
+    # Ignore any file that isn't a stylesheet
+    if f.path.splitFile().ext != ".css":
+      continue
+
+    stylesheet = open(f.path, fmRead)
+
+    for line in stylesheet.lines():
+      output &= line
+        .strip(true, true)
+        .replace(": ", ":")
+        .replace(" {", ":")
+  
+  outFile = open("build/css/style.css", fmWrite)
+  outFile.write(output)
+  outFile.close()
 
 
+# Create build directory and write the quiz HTML to a HTML document that 
+# reflects the title given to it
 proc exportQuizAsHTML(quizTitle: string, filePath: string, deleteBuildDir: string) =
   var outFile: File
 
@@ -147,10 +175,11 @@ proc exportQuizAsHTML(quizTitle: string, filePath: string, deleteBuildDir: strin
   outFile.write(output)
   outFile.close()
 
-  copyCSSToBuildDir()
 
-
-proc getSettingsFromUser() =
+# Get the quiz title and file path of the quiz text document from the 
+# user while also providing the option to remove any existing build
+# directory
+proc getSettingsFromUser(): tuple =
   var deleteBuildDir: string = "n"
 
   echo "\nPlease enter the name of the quiz - the imported quiz will use this as its filename"
@@ -160,17 +189,25 @@ proc getSettingsFromUser() =
   let filePath: string = readLine(stdin)
 
   if not fileExists(filePath):
-    raise newException(FileDoesNotExist, &"Cannot find file at {filePath}")
+    raise newException(FileDoesNotExist, &"Cannot find {filePath}")
 
   if dirExists("build"):
     echo "\nDelete the existing build directory? - y/n"
     deleteBuildDir = readLine(stdin)
 
-  exportQuizAsHTML(quizTitle, filePath, deleteBuildDir)
+  result = (
+    quizTitle: quizTitle, 
+    filePath: filePath, 
+    deleteBuildDir: deleteBuildDir
+  )
 
 
 proc main() =
-  getSettingsFromUser()
+  let settings: tuple = getSettingsFromUser()
+  exportQuizAsHTML(settings.quizTitle, settings.filePath, settings.deleteBuildDir)
+  copyCSSToBuildDir()
+
+  echo "\nQuiz exported to ./build directory\n"
 
 
 main()

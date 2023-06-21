@@ -27,7 +27,7 @@ Navigate to the `quiz` directory and in your terminal type `nim c -r main.nim`. 
 
 - "Please enter the name of the quiz" - e.g., `Cities of the World`
   - The imported quiz will use this title as its filename - e.g., `cities-of-the-world.html`
-- "Please enter the file path of the quiz to be imported"
+- "Please enter the file path of the quiz to be imported" - e.g., `quizzes/testquiz.txt`
   - The path of the quiz file relative to the `quiz` directory
 - "Delete the existing build directory? - y/n"
   - Choose whether to remove any existing `build` directory

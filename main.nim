@@ -24,11 +24,36 @@ proc isInvalid(self: Question): bool =
   return true
 
 
+# Get the quiz title and file path of the quiz text document from the 
+# user while also providing the option to remove any existing build
+# directory
+proc getSettingsFromUser(): tuple =
+  var deleteBuildDir: string = "n"
+
+  echo "\nPlease enter the name of the quiz - the imported quiz will use this as its filename"
+  let quizTitle: string = readLine(stdin)
+
+  echo "\nPlease enter the file path of the quiz to be imported"
+  let filePath: string = readLine(stdin)
+
+  if not fileExists(filePath):
+    raise newException(FileDoesNotExist, &"Cannot find {filePath}")
+
+  if dirExists("build"):
+    echo "\nDelete the existing build directory? - y/n"
+    deleteBuildDir = readLine(stdin)
+
+  result = (
+    quizTitle: quizTitle, 
+    filePath: filePath, 
+    deleteBuildDir: deleteBuildDir
+  )
+
+
 # Parse a text file of multiple-choice questions into a data structure
 proc importQuizFromText(filePath: string): seq[Question] =
   var
     quizFile: File
-    quiz: seq[Question]
     currentQuestion, lineNumber: int = -1
 
   quizFile = open(filePath, fmRead)
@@ -42,29 +67,27 @@ proc importQuizFromText(filePath: string): seq[Question] =
 
     elif currentLine[0] == '-':
       currentLine.removePrefix('-')
-      quiz[currentQuestion].answers.add(Answer(text: currentLine, isCorrect: false))
+      result[currentQuestion].answers.add(Answer(text: currentLine, isCorrect: false))
 
     elif currentLine[0] == '*':
       currentLine.removePrefix('*')
-      quiz[currentQuestion].answers.add(Answer(text: currentLine, isCorrect: true))
-      quiz[currentQuestion].correctAnswerCount += 1
+      result[currentQuestion].answers.add(Answer(text: currentLine, isCorrect: true))
+      result[currentQuestion].correctAnswerCount += 1
 
     else:
       # Ensure previous question was valid before moving to the next one
-      if currentQuestion > -1 and quiz[currentQuestion].isInvalid():
+      if currentQuestion > -1 and result[currentQuestion].isInvalid():
         quizFile.close()
         raise newException(InvalidQuestion, &"Invalid question on line {lineNumber}")
 
       inc currentQuestion
 
-      quiz.add(Question(text: currentLine))
+      result.add(Question(text: currentLine))
 
   quizFile.close()
 
-  if currentQuestion > -1 and quiz[currentQuestion].isInvalid():
+  if currentQuestion > -1 and result[currentQuestion].isInvalid():
     raise newException(InvalidQuestion, &"Invalid question on line {lineNumber}")
-
-  return quiz
 
 
 proc getHTMLTemplateAsString(path: string): string =
@@ -82,9 +105,8 @@ proc parsedQuizDataToJSON(quiz: seq[Question]) =
 
 # Piece HTML templates together into a single HTML document and embed quiz 
 # data into it
-proc buildQuizHTML(quizTitle: string, filePath: string): string =
+proc buildQuizHTML(quiz: seq[Question], quizTitle: string, filePath: string): string =
   var
-    quiz: seq[Question] = importQuizFromText(filePath)
     stylesheets: string
     pageTemplate: string
     questionTemplate: string
@@ -170,49 +192,26 @@ proc createBuildDirStructure(deleteBuildDir: string) =
 
 # Create build directory and write the quiz HTML to a HTML document that 
 # reflects the title given to it
-proc exportQuizAsHTML(quizTitle: string, filePath: string) =
+proc exportQuizAsHTML(quizHTML: string, quizTitle: string, filePath: string) =
   var outFile: File
 
   let
     title: string = quizTitle
     filename: string = title.replace(" ", "-").toLowerAscii()
-    output: string = buildQuizHTML(title, filePath)
 
   outFile = open(&"build/{filename}.html", fmWrite)
-  outFile.write(output)
+  outFile.write(quizHTML)
   outFile.close()
 
 
-# Get the quiz title and file path of the quiz text document from the 
-# user while also providing the option to remove any existing build
-# directory
-proc getSettingsFromUser(): tuple =
-  var deleteBuildDir: string = "n"
-
-  echo "\nPlease enter the name of the quiz - the imported quiz will use this as its filename"
-  let quizTitle: string = readLine(stdin)
-
-  echo "\nPlease enter the file path of the quiz to be imported"
-  let filePath: string = readLine(stdin)
-
-  if not fileExists(filePath):
-    raise newException(FileDoesNotExist, &"Cannot find {filePath}")
-
-  if dirExists("build"):
-    echo "\nDelete the existing build directory? - y/n"
-    deleteBuildDir = readLine(stdin)
-
-  result = (
-    quizTitle: quizTitle, 
-    filePath: filePath, 
-    deleteBuildDir: deleteBuildDir
-  )
-
-
 proc main() =
-  let settings: tuple = getSettingsFromUser()
+  let
+    settings: tuple = getSettingsFromUser()
+    quiz: seq[Question] = importQuizFromText(settings.filePath)
+    quizHTML: string = buildQuizHTML(quiz, settings.quizTitle, settings.filePath)
+
   createBuildDirStructure(settings.deleteBuildDir)
-  exportQuizAsHTML(settings.quizTitle, settings.filePath)
+  exportQuizAsHTML(quizHTML, settings.quizTitle, settings.filePath)
   copyCSSToBuildDir()
 
   echo "\nQuiz exported to ./build directory\n"

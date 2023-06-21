@@ -6,9 +6,9 @@ Valid three answer one correct
 *True
 -False
 -None of the above
-Valid five answer one correct no empty line preceding
+    Valid five answer one correct no empty line preceding
 *Yes
--No
+   -No
 -Maybe
 -Don't know
 -Could you repeat the question?

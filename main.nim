@@ -52,11 +52,8 @@ proc getSettingsFromUser(): tuple =
 
 # Parse a text file of multiple-choice questions into a data structure
 proc importQuizFromText(filePath: string): seq[Question] =
-  var
-    quizFile: File
-    currentQuestion, lineNumber: int = -1
-
-  quizFile = open(filePath, fmRead)
+  let quizFile: File = open(filePath, fmRead)
+  var currentQuestion, lineNumber: int = -1
 
   for line in quizFile.lines():
     var currentLine: string = line.strip(true, true)
@@ -91,33 +88,24 @@ proc importQuizFromText(filePath: string): seq[Question] =
 
 
 proc getHTMLTemplateAsString(path: string): string =
-  var templateFile: File
-
-  templateFile = open(path, fmRead)
+  let templateFile: File = open(path, fmRead)
 
   for line in templateFile.lines():
     result &= line & "\n"
 
 
-proc parsedQuizDataToJSON(quiz: seq[Question]) =
-  echo "parsedQuizDataToJSON()"
-
-
 # Piece HTML templates together into a single HTML document and embed quiz 
 # data into it
 proc buildQuizHTML(quiz: seq[Question], quizTitle: string, filePath: string): string =
+  let
+    pageTemplate: string = getHTMLTemplateAsString("templates/page.html")
+    questionTemplate: string = getHTMLTemplateAsString("templates/question.html")
+    answerRadioTemplate: string = getHTMLTemplateAsString("templates/answerRadio.html")
+    answerCheckboxTemplate: string = getHTMLTemplateAsString("templates/answerCheckbox.html")
+
   var
     stylesheets: string
-    pageTemplate: string
-    questionTemplate: string
-    answerRadioTemplate: string
-    answerCheckboxTemplate: string
     idCounter: int
-
-  pageTemplate = getHTMLTemplateAsString("templates/page.html")
-  questionTemplate = getHTMLTemplateAsString("templates/question.html")
-  answerRadioTemplate = getHTMLTemplateAsString("templates/answerRadio.html")
-  answerCheckboxTemplate = getHTMLTemplateAsString("templates/answerCheckbox.html")
 
   for question in quiz:
     var
@@ -152,22 +140,62 @@ proc buildQuizHTML(quiz: seq[Question], quizTitle: string, filePath: string): st
     .replace("{{quizTitle}}", quizTitle)
 
 
+proc createBuildDirStructure(deleteBuildDir: string) =
+  if deleteBuildDir.toLowerAscii() != "n":
+    removeDir("build")
+
+  createDir("build")
+  createDir("build/js")
+
+  if dirExists("css"):
+    createDir("build/css")
+
+
+proc parsedQuizDataToJSArray(quiz: seq[Question]) =
+  var data: string
+
+  for question in quiz:
+    data &= "{question:\"" & question.text & "\",answers:["
+
+    for answer in question.answers:
+      data &= "{answer:\"" & answer.text & "\",isCorrect:" & $answer.isCorrect & "},"
+
+    data &= "]},"
+
+  let
+    output: string = &"const quiz = [{data}];"
+    outFile: File = open("build/js/quizData.js", fmWrite)
+
+  outFile.write(output)
+  outFile.close()
+
+
+# Create build directory and write the quiz HTML to a HTML document that 
+# reflects the title given to it
+proc exportQuizAsHTML(quizHTML: string, quizTitle: string, filePath: string) =
+  let
+    title: string = quizTitle
+    filename: string = title.replace(" ", "-").toLowerAscii()
+    outFile: File = open(&"build/{filename}.html", fmWrite)
+
+  outFile.write(quizHTML)
+  outFile.close()
+
+
 # If CSS files are provided, merge them into a single minified style.css in 
 # the build directory
 proc copyCSSToBuildDir() =
   if not dirExists("css"):
     return
 
-  var
-    output: string
-    stylesheet, outFile: File
+  var output: string
 
   for f in walkDir("css"):
     # Ignore any file that isn't a stylesheet
     if f.path.splitFile().ext != ".css":
       continue
 
-    stylesheet = open(f.path, fmRead)
+    let stylesheet: File = open(f.path, fmRead)
 
     for line in stylesheet.lines():
       output &= line
@@ -175,32 +203,9 @@ proc copyCSSToBuildDir() =
         .replace(": ", ":")
         .replace(" {", "{")
   
-  outFile = open("build/css/style.css", fmWrite)
+  let outFile: File = open("build/css/style.css", fmWrite)
+
   outFile.write(output)
-  outFile.close()
-
-
-proc createBuildDirStructure(deleteBuildDir: string) =
-  if deleteBuildDir.toLowerAscii() != "n":
-    removeDir("build")
-
-  createDir("build")
-
-  if dirExists("css"):
-    createDir("build/css")
-
-
-# Create build directory and write the quiz HTML to a HTML document that 
-# reflects the title given to it
-proc exportQuizAsHTML(quizHTML: string, quizTitle: string, filePath: string) =
-  var outFile: File
-
-  let
-    title: string = quizTitle
-    filename: string = title.replace(" ", "-").toLowerAscii()
-
-  outFile = open(&"build/{filename}.html", fmWrite)
-  outFile.write(quizHTML)
   outFile.close()
 
 
@@ -211,6 +216,7 @@ proc main() =
     quizHTML: string = buildQuizHTML(quiz, settings.quizTitle, settings.filePath)
 
   createBuildDirStructure(settings.deleteBuildDir)
+  parsedQuizDataToJSArray(quiz)
   exportQuizAsHTML(quizHTML, settings.quizTitle, settings.filePath)
   copyCSSToBuildDir()
 

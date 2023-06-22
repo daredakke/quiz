@@ -51,7 +51,7 @@ proc getSettingsFromUser(): tuple =
 
 
 # Parse a text file of multiple-choice questions into a data structure
-proc importQuizFromText(filePath: string): seq[Question] =
+proc importQuizDataFromText(filePath: string): seq[Question] =
   let quizFile: File = open(filePath, fmRead)
   var currentQuestion, lineNumber: int = -1
 
@@ -96,7 +96,7 @@ proc getHTMLTemplateAsString(path: string): string =
 
 # Piece HTML templates together into a single HTML document and embed quiz 
 # data into it
-proc buildQuizHTML(quiz: seq[Question], quizTitle: string, filePath: string): string =
+proc buildQuizWebPageAsString(quiz: seq[Question], quizTitle: string, filePath: string): string =
   let
     pageTemplate: string = getHTMLTemplateAsString("templates/page.html")
     questionTemplate: string = getHTMLTemplateAsString("templates/question.html")
@@ -151,7 +151,7 @@ proc createBuildDirStructure(deleteBuildDir: string) =
     createDir("build/css")
 
 
-proc parsedQuizDataToJSArray(quiz: seq[Question]) =
+proc exportQuizDataToJSArray(quiz: seq[Question]) =
   var data: string
 
   for question in quiz:
@@ -172,13 +172,13 @@ proc parsedQuizDataToJSArray(quiz: seq[Question]) =
 
 # Create build directory and write the quiz HTML to a HTML document that 
 # reflects the title given to it
-proc exportQuizAsHTML(quizHTML: string, quizTitle: string, filePath: string) =
+proc exportQuizWebPageToHTML(quizWebPage: string, quizTitle: string, filePath: string) =
   let
     title: string = quizTitle
     filename: string = title.replace(" ", "-").toLowerAscii()
     outFile: File = open(&"build/{filename}.html", fmWrite)
 
-  outFile.write(quizHTML)
+  outFile.write(quizWebPage)
   outFile.close()
 
 
@@ -212,12 +212,12 @@ proc copyCSSToBuildDir() =
 proc main() =
   let
     settings: tuple = getSettingsFromUser()
-    quiz: seq[Question] = importQuizFromText(settings.filePath)
-    quizHTML: string = buildQuizHTML(quiz, settings.quizTitle, settings.filePath)
+    quiz: seq[Question] = importQuizDataFromText(settings.filePath)
+    quizWebPage: string = buildQuizWebPageAsString(quiz, settings.quizTitle, settings.filePath)
 
   createBuildDirStructure(settings.deleteBuildDir)
-  parsedQuizDataToJSArray(quiz)
-  exportQuizAsHTML(quizHTML, settings.quizTitle, settings.filePath)
+  exportQuizDataToJSArray(quiz)
+  exportQuizWebPageToHTML(quizWebPage, settings.quizTitle, settings.filePath)
   copyCSSToBuildDir()
 
   echo "\nQuiz exported to ./build directory\n"

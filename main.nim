@@ -100,8 +100,7 @@ proc buildQuizWebPageAsString(quiz: seq[Question], quizTitle: string, filePath: 
   let
     pageTemplate: string = getHTMLTemplateAsString("templates/page.html")
     questionTemplate: string = getHTMLTemplateAsString("templates/question.html")
-    answerRadioTemplate: string = getHTMLTemplateAsString("templates/answerRadio.html")
-    answerCheckboxTemplate: string = getHTMLTemplateAsString("templates/answerCheckbox.html")
+    answerTemplate: string = getHTMLTemplateAsString("templates/answer.html")
 
   var
     stylesheets: string
@@ -110,20 +109,23 @@ proc buildQuizWebPageAsString(quiz: seq[Question], quizTitle: string, filePath: 
   for question in quiz:
     var
       answers: string
-      templateToUse: string = answerRadioTemplate
+      answerType: string = "radio"
+      questionId: string = $idCounter
 
     for i, answer in question.answers:
       if question.correctAnswerCount > 1:
-        templateToUse = answerCheckboxTemplate
+        answerType = "checkbox"
+        questionId = &"{$idCounter}-{$i}"
 
-      answers &= templateToUse
+      answers &= answerTemplate
+        .replace("{{type}}", answerType)
         .replace("{{answerId}}", $i)
         .replace("{{answerText}}", answer.text)
+        .replace("{{questionId}}", questionId)
 
     result &= questionTemplate
       .replace("{{questionText}}", question.text)
       .replace("{{answers}}", answers)
-      .replace("{{questionId}}", $idCounter)
 
     inc idCounter
 

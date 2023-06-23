@@ -179,9 +179,28 @@ proc exportQuizWebPageToHTML(quizWebPage: string, quizTitle: string, filePath: s
   outFile.close()
 
 
+proc exportJavaScript(quizDataAsJavaScript: string) =
+  let
+    quizScriptSourceFile: File = open("js/quiz.js", fmRead)
+    quizScriptOutFile: File = open("build/js/quiz.js", fmWrite)
+    quizDataOutFile: File = open("build/js/quizData.js", fmWrite)
+
+  var output: string
+
+  for line in quizScriptSourceFile.lines():
+    output &= line.strip(true, true)
+
+  quizScriptOutFile.write(output)
+  quizDataOutFile.write(quizDataAsJavaScript)
+
+  quizScriptSourceFile.close()
+  quizScriptOutFile.close()
+  quizDataOutFile.close()
+
+
 # If CSS files are provided, merge them into a single minified style.css in 
 # the build directory
-proc copyCSSToBuildDir() =
+proc exportCSS() =
   if not dirExists("css"):
     return
 
@@ -206,25 +225,6 @@ proc copyCSSToBuildDir() =
   outFile.close()
 
 
-proc copyJavaScriptToBuildDir(quizDataAsJavaScript: string) =
-  let
-    quizScriptSourceFile: File = open("js/quiz.js", fmRead)
-    quizScriptOutFile: File = open("build/js/quiz.js", fmWrite)
-    quizDataOutFile: File = open("build/js/quizData.js", fmWrite)
-
-  var output: string
-
-  for line in quizScriptSourceFile.lines():
-    output &= line.strip(true, true)
-
-  quizScriptOutFile.write(output)
-  quizDataOutFile.write(quizDataAsJavaScript)
-
-  quizScriptSourceFile.close()
-  quizScriptOutFile.close()
-  quizDataOutFile.close()
-
-
 proc main() =
   let
     settings: tuple = getSettingsFromUser()
@@ -234,8 +234,8 @@ proc main() =
 
   createBuildDirStructure(settings.deleteBuildDir)
   exportQuizWebPageToHTML(quizWebPage, settings.quizTitle, settings.filePath)
-  copyJavaScriptToBuildDir(quizDataAsJavaScript)
-  copyCSSToBuildDir()
+  exportJavaScript(quizDataAsJavaScript)
+  exportCSS()
 
   echo "\nQuiz exported to ./build directory\n"
 

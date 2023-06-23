@@ -207,11 +207,22 @@ proc copyCSSToBuildDir() =
 
 
 proc copyJavaScriptToBuildDir(quizDataAsJavaScript: string) =
-  copyFile("js/quiz.js", "build/js/quiz.js")
+  let
+    quizScriptSourceFile: File = open("js/quiz.js", fmRead)
+    quizScriptOutFile: File = open("build/js/quiz.js", fmWrite)
+    quizDataOutFile: File = open("build/js/quizData.js", fmWrite)
 
-  let outFile: File = open("build/js/quizData.js", fmWrite)
-  outFile.write(quizDataAsJavaScript)
-  outFile.close()
+  var output: string
+
+  for line in quizScriptSourceFile.lines():
+    output &= line.strip(true, true)
+
+  quizScriptOutFile.write(output)
+  quizDataOutFile.write(quizDataAsJavaScript)
+
+  quizScriptSourceFile.close()
+  quizScriptOutFile.close()
+  quizDataOutFile.close()
 
 
 proc main() =

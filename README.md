@@ -17,13 +17,13 @@ A quiz is formatted as follows:
   - must have at least one correct answer
   - must have at least one incorrect answer
 
-Whitespace and blank lines have no impact when importing quizzes, so you may format quizzes as you like.
+Whitespace and blank lines are ignored.
 
 ## How to Use
 
 Ensure you have [Nim](https://nim-lang.org/) installed.
 
-Navigate to the `quiz` directory and in your terminal type `nim c -r main.nim`. You will be asked a series of questions.
+Navigate to the `quiz` directory in your terminal and type `nim c -r main.nim`. You will be asked a series of questions.
 
 - "Please enter the name of the quiz" - e.g., `Cities of the World`
   - The imported quiz will use this title as its filename - e.g., `cities-of-the-world.html`
@@ -34,4 +34,4 @@ Navigate to the `quiz` directory and in your terminal type `nim c -r main.nim`. 
 
 ### CSS
 
-If you have a `css` directory present in the `quiz` directory, it and any CSS files inside will be merged and minified before written as a single stylesheet to the `build` directory and linked appropriately in the exported HTML file.
+If you have a `css` directory present in the `quiz` directory, any CSS files inside will be merged and minified in the order that they appear in the directory before being written as a single stylesheet to the `build` directory and linked appropriately in the exported HTML file.

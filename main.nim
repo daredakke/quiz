@@ -28,9 +28,7 @@ proc isInvalid(self: Question): bool =
 # user while also providing the option to remove any existing build
 # directory
 proc getSettingsFromUser(): tuple =
-  var deleteBuildDir: string = "n"
-
-  echo "\nPlease enter the name of the quiz - the imported quiz will use this as its filename"
+  echo "\nPlease enter the name of the quiz"
   let quizTitle: string = readLine(stdin)
 
   echo "\nPlease enter the file path of the quiz to be imported"
@@ -39,14 +37,9 @@ proc getSettingsFromUser(): tuple =
   if not fileExists(filePath):
     raise newException(FileDoesNotExist, &"Cannot find {filePath}")
 
-  if dirExists("build"):
-    echo "\nDelete the existing build directory? - y/n"
-    deleteBuildDir = readLine(stdin)
-
   result = (
     quizTitle: quizTitle, 
-    filePath: filePath, 
-    deleteBuildDir: deleteBuildDir
+    filePath: filePath
   )
 
 
@@ -143,15 +136,15 @@ proc buildQuizWebPageAsString(quiz: seq[Question], quizTitle: string, filePath: 
     .replace("{{quizTitle}}", quizTitle)
 
 
-proc createBuildDirStructure(deleteBuildDir: string) =
-  if deleteBuildDir.toLowerAscii() != "n":
-    removeDir("build")
+proc createBuildDirStructure(dirName: string) =
+  if dirExists(dirName):
+    removeDir(dirName)
 
-  createDir("build")
-  createDir("build/js")
+  createDir(dirName)
+  createDir(&"{dirName}/js")
 
   if dirExists("css"):
-    createDir("build/css")
+    createDir(&"{dirName}/css")
 
 
 proc convertQuizDataToJavaScript(quiz: seq[Question]): string =
@@ -170,21 +163,18 @@ proc convertQuizDataToJavaScript(quiz: seq[Question]): string =
 
 # Create build directory and write the quiz HTML to a HTML document that 
 # reflects the title given to it
-proc exportQuizWebPageToHTML(quizWebPage: string, quizTitle: string, filePath: string) =
-  let
-    title: string = quizTitle
-    filename: string = title.replace(" ", "-").toLowerAscii()
-    outFile: File = open(&"build/{filename}.html", fmWrite)
+proc exportQuizWebPageToHTML(dirName: string, quizWebPage: string) =
+  let outFile: File = open(&"{dirName}/quiz.html", fmWrite)
 
   outFile.write(quizWebPage)
   outFile.close()
 
 
-proc exportJavaScript(quizDataAsJavaScript: string) =
+proc exportJavaScript(dirName: string, quizDataAsJavaScript: string) =
   let
     quizScriptSourceFile: File = open("js/quiz.js", fmRead)
-    quizScriptOutFile: File = open("build/js/quiz.js", fmWrite)
-    quizDataOutFile: File = open("build/js/quizData.js", fmWrite)
+    quizScriptOutFile: File = open(&"{dirName}/js/quiz.js", fmWrite)
+    quizDataOutFile: File = open(&"{dirName}/js/quizData.js", fmWrite)
 
   var output: string
 
@@ -201,7 +191,7 @@ proc exportJavaScript(quizDataAsJavaScript: string) =
 
 # If CSS files are provided, merge them into a single minified style.css in 
 # the build directory
-proc exportCSS() =
+proc exportCSS(dirName: string) =
   if not dirExists("css"):
     return
 
@@ -220,7 +210,7 @@ proc exportCSS() =
         .replace(": ", ":")
         .replace(" {", "{")
   
-  let outFile: File = open("build/css/style.css", fmWrite)
+  let outFile: File = open(&"{dirName}/css/style.css", fmWrite)
 
   outFile.write(output)
   outFile.close()
@@ -229,16 +219,17 @@ proc exportCSS() =
 proc main() =
   let
     settings: tuple = getSettingsFromUser()
+    dirName: string = settings.quizTitle.replace(" ", "-").toLowerAscii()
     quiz: seq[Question] = importQuizDataFromText(settings.filePath)
     quizWebPage: string = buildQuizWebPageAsString(quiz, settings.quizTitle, settings.filePath)
     quizDataAsJavaScript: string = convertQuizDataToJavaScript(quiz)
 
-  createBuildDirStructure(settings.deleteBuildDir)
-  exportQuizWebPageToHTML(quizWebPage, settings.quizTitle, settings.filePath)
-  exportJavaScript(quizDataAsJavaScript)
-  exportCSS()
+  createBuildDirStructure(dirName)
+  exportQuizWebPageToHTML(dirName, quizWebPage)
+  exportJavaScript(dirName, quizDataAsJavaScript)
+  exportCSS(dirName)
 
-  echo "\nQuiz exported to ./build directory\n"
+  echo &"\nQuiz exported to ./{dirName} directory\n"
 
 
 main()

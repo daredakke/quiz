@@ -52,7 +52,7 @@ function outputQuizResults(quizResults) {
 
   for (result in quizResults) {
     total += quizResults[result] ? 1 : 0;
-    output += `${result + 1} - ${quizResults[result] ? "Correct" : "Wrong"}\n`
+    output += `${Number(result) + 1} - ${quizResults[result] ? "Correct" : "Wrong"}\n`
   }
 
   output += `\nYou scored ${total}/${quiz.length}`;

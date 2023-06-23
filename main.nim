@@ -126,6 +126,7 @@ proc buildQuizWebPageAsString(quiz: seq[Question], quizTitle: string, filePath: 
     result &= questionTemplate
       .replace("{{questionText}}", question.text)
       .replace("{{answers}}", answers)
+      .replace("{{questionId}}", $(idCounter + 1))
 
     inc idCounter
 

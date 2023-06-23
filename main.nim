@@ -153,7 +153,7 @@ proc createBuildDirStructure(deleteBuildDir: string) =
     createDir("build/css")
 
 
-proc exportQuizDataToJSArray(quiz: seq[Question]) =
+proc convertQuizDataToJavaScript(quiz: seq[Question]): string =
   var data: string
 
   for question in quiz:
@@ -164,12 +164,7 @@ proc exportQuizDataToJSArray(quiz: seq[Question]) =
 
     data &= "]},"
 
-  let
-    output: string = &"const quiz = [{data}];"
-    outFile: File = open("build/js/quizData.js", fmWrite)
-
-  outFile.write(output)
-  outFile.close()
+  result = &"const quiz = [{data}];"
 
 
 # Create build directory and write the quiz HTML to a HTML document that 
@@ -211,15 +206,24 @@ proc copyCSSToBuildDir() =
   outFile.close()
 
 
+proc copyJavaScriptToBuildDir(quizDataAsJavaScript: string) =
+  copyFile("js/quiz.js", "build/js/quiz.js")
+
+  let outFile: File = open("build/js/quizData.js", fmWrite)
+  outFile.write(quizDataAsJavaScript)
+  outFile.close()
+
+
 proc main() =
   let
     settings: tuple = getSettingsFromUser()
     quiz: seq[Question] = importQuizDataFromText(settings.filePath)
     quizWebPage: string = buildQuizWebPageAsString(quiz, settings.quizTitle, settings.filePath)
+    quizDataAsJavaScript: string = convertQuizDataToJavaScript(quiz)
 
   createBuildDirStructure(settings.deleteBuildDir)
-  exportQuizDataToJSArray(quiz)
   exportQuizWebPageToHTML(quizWebPage, settings.quizTitle, settings.filePath)
+  copyJavaScriptToBuildDir(quizDataAsJavaScript)
   copyCSSToBuildDir()
 
   echo "\nQuiz exported to ./build directory\n"

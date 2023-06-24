@@ -28,6 +28,12 @@ header {
   margin: 32px auto;
 }
 
+.answers-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
 .btn {
   background-color: crimson;
   border: 0;
@@ -43,10 +49,4 @@ header {
 
 .btn:hover {
   background-color: darkred;
-}
-
-.answers-container {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
 }

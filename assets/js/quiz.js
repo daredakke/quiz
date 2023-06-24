@@ -14,6 +14,7 @@ function getQuizState() {
   return quizState;
 }
 
+
 function allQuestionsAnswered(quizState) {
   for (question in quizState) {
     let answersGiven = 0;
@@ -29,6 +30,7 @@ function allQuestionsAnswered(quizState) {
 
   return true;
 }
+
 
 function getQuizResults(quizState) {
   const quizResults = {};
@@ -46,6 +48,7 @@ function getQuizResults(quizState) {
   return quizResults;
 }
 
+
 function createTextElement(tag, text, className = null) {
   const element = document.createElement(tag);
   element.textContent = text;
@@ -56,6 +59,7 @@ function createTextElement(tag, text, className = null) {
 
   return element;
 }
+
 
 function modal() {
   const modalBox = document.querySelector("#modal");
@@ -70,6 +74,7 @@ function modal() {
   
   closeModal.addEventListener("click", hideModal);
 }
+
 
 function outputQuizResults(quizResults) {
   const modalBody = document.querySelector("#modalBody");
@@ -101,6 +106,7 @@ function outputQuizResults(quizResults) {
   modal();
 }
 
+
 function outputQuizError() {
   const modalBody = document.querySelector("#modalBody");
 
@@ -111,6 +117,7 @@ function outputQuizError() {
 
   modal();
 }
+
 
 function main() {
   const submitButton = document.querySelector("#submitQuiz");
@@ -126,5 +133,6 @@ function main() {
     outputQuizResults(getQuizResults(quizState));
   });
 }
+
 
 main();

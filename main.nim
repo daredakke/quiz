@@ -24,9 +24,6 @@ proc isInvalid(self: Question): bool =
   return true
 
 
-# Get the quiz title and file path of the quiz text document from the 
-# user while also providing the option to remove any existing build
-# directory
 proc getSettingsFromUser(): tuple =
   echo "\nPlease enter the name of the quiz"
   let quizTitle: string = readLine(stdin)
@@ -44,7 +41,6 @@ proc getSettingsFromUser(): tuple =
   )
 
 
-# Parse a text file of multiple-choice questions into a data structure
 proc importQuizDataFromText(filePath: string): seq[Question] =
   let quizFile: File = open(filePath, fmRead)
   var currentQuestion, lineNumber: int = -1
@@ -77,6 +73,7 @@ proc importQuizDataFromText(filePath: string): seq[Question] =
 
   quizFile.close()
 
+  # Need to check again or final question will be skipped
   if currentQuestion > -1 and result[currentQuestion].isInvalid():
     raise newException(InvalidQuestion, &"Invalid question on line {lineNumber}")
 
@@ -88,8 +85,6 @@ proc getHTMLTemplateAsString(path: string): string =
     result &= line & "\n"
 
 
-# Piece HTML templates together into a single HTML document and embed quiz 
-# data into it
 proc buildQuizWebpageAsString(quiz: seq[Question], quizTitle: string): string =
   let
     pageTemplate: string = getHTMLTemplateAsString("assets/templates/page.html")
@@ -150,8 +145,6 @@ proc getQuizJavaScriptAsString(): string =
   quizScript.close()
 
 
-# If CSS files are provided, merge them into a single minified style.css in 
-# the build directory
 proc getStylesheetString(): string =
   if not dirExists("assets/css"):
     return
@@ -169,7 +162,6 @@ proc getStylesheetString(): string =
     stylesheet.close()
 
 
-# Embed CSS and JS into the webpage
 proc embedFilesInWebpage(webpage: string, script: string, stylesheet: string): string =
   result = webPage
     .replace("{{script}}", script)
@@ -181,8 +173,6 @@ proc createQuizzesFolder() =
     createDir("exports")
   
 
-# Create build directory and write the quiz HTML to a HTML document that 
-# reflects the title given to it
 proc exportQuizWebpageToHTML(filename: string, webpage: string) =
   let outFile: File = open(&"exports/{filename}.html", fmWrite)
 

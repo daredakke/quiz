@@ -92,9 +92,9 @@ proc getHTMLTemplateAsString(path: string): string =
 # data into it
 proc buildQuizWebpageAsString(quiz: seq[Question], quizTitle: string): string =
   let
-    pageTemplate: string = getHTMLTemplateAsString("templates/page.html")
-    questionTemplate: string = getHTMLTemplateAsString("templates/question.html")
-    answerTemplate: string = getHTMLTemplateAsString("templates/answer.html")
+    pageTemplate: string = getHTMLTemplateAsString("assets/templates/page.html")
+    questionTemplate: string = getHTMLTemplateAsString("assets/templates/question.html")
+    answerTemplate: string = getHTMLTemplateAsString("assets/templates/answer.html")
 
   var idCounter: int
 
@@ -142,7 +142,7 @@ proc getQuizDataAsJavaScriptString(quiz: seq[Question]): string =
 
 
 proc getQuizJavaScriptAsString(): string =
-  let quizScript: File = open("js/quiz.js", fmRead)
+  let quizScript: File = open("assets/js/quiz.js", fmRead)
 
   for line in quizScript.lines():
     result &= &"{line}\n"
@@ -153,10 +153,10 @@ proc getQuizJavaScriptAsString(): string =
 # If CSS files are provided, merge them into a single minified style.css in 
 # the build directory
 proc getStylesheetString(): string =
-  if not dirExists("css"):
+  if not dirExists("assets/css"):
     return
 
-  for f in walkDir("css"):
+  for f in walkDir("assets/css"):
     # Ignore any file that isn't a stylesheet
     if f.path.splitFile().ext != ".css":
       continue
@@ -177,14 +177,14 @@ proc embedFilesInWebpage(webpage: string, script: string, stylesheet: string): s
 
 
 proc createQuizzesFolder() =
-  if not dirExists("quizzes"):
-    createDir("quizzes")
+  if not dirExists("exports"):
+    createDir("exports")
   
 
 # Create build directory and write the quiz HTML to a HTML document that 
 # reflects the title given to it
 proc exportQuizWebpageToHTML(filename: string, webpage: string) =
-  let outFile: File = open(&"quizzes/{filename}.html", fmWrite)
+  let outFile: File = open(&"exports/{filename}.html", fmWrite)
 
   outFile.write(webpage)
   outFile.close()
@@ -204,7 +204,7 @@ proc main() =
   createQuizzesFolder()
   exportQuizWebpageToHTML(settings.filename, quizWebpageComplete)
 
-  echo &"\nQuiz exported to ./quizzes/{settings.filename}.html\n"
+  echo &"\nQuiz exported to ./exports/{settings.filename}.html\n"
 
 
 main()

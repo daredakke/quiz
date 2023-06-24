@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>World Geography</title>
+
+  <style>
+
+@import url('https://fonts.googleapis.com/css2?family=Rubik&display=swap');
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+body, .btn {
+  font-family: "Rubik", Arial, Helvetica, sans-serif;
+}
+
+header {
+  border-bottom: 2px solid crimson;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.page-wrapper {
+  margin: auto;
+  max-width: 900px;
+  padding: 0 8px;
+}
+
+.question-container {
+  margin: 32px auto;
+}
+
+.btn {
+  background-color: crimson;
+  border: 0;
+  color: white;
+  cursor: pointer;
+  display: block;
+  font-size: 1rem;
+  font-weight: bold;
+  margin: 16px auto;
+  padding: 8px;
+  width: 100%;
+}
+
+.btn:hover {
+  background-color: darkred;
+}
+
+.answers-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.modal {
+  background-color: hsla(0, 0%, 25%, 0.5);
+  position: fixed;
+  content: "";
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  z-index: 100;
+}
+
+.modal-contents {
+  background-color: white;
+  display: flex;
+  flex-direction: column;
+  max-width: 500px;
+  margin: 82px auto 0;
+  padding: 16px 16px 0;
+}
+
+.modal-contents h2 {
+  margin: 0;
+  text-align: center;
+}
+
+.modal-body {
+  flex: 1;
+}
+
+.modal-result {
+  margin-top: 28px;
+  text-align: center;
+}
+
+.correct {
+  color: green;
+}
+
+.incorrect {
+  color: crimson;
+}
+
+.hide {
+  display: none;
+}
+
+  </style>
+</head>
+<body>
+  <header>
+    <h1>World Geography</h1>
+  </header>
+
+  <main class="page-wrapper">
+    <form id="quizForm">
+      <div class="question-container">
+  <h2>1 - Which is the largest country by area?</h2>
+
+  <div class="answers-container">
+    <label>
+  <input type="radio" name="0" value="0">
+  Brazil
+</label>
+<label>
+  <input type="radio" name="0" value="1">
+  China
+</label>
+<label>
+  <input type="radio" name="0" value="2">
+  Canada
+</label>
+<label>
+  <input type="radio" name="0" value="3">
+  India
+</label>
+
+  </div>
+</div>
+<div class="question-container">
+  <h2>2 - Mogadishu is the capital of which African country?</h2>
+
+  <div class="answers-container">
+    <label>
+  <input type="radio" name="1" value="0">
+  Ethiopia
+</label>
+<label>
+  <input type="radio" name="1" value="1">
+  Somalia
+</label>
+<label>
+  <input type="radio" name="1" value="2">
+  Malawi
+</label>
+<label>
+  <input type="radio" name="1" value="3">
+  Tanzania
+</label>
+
+  </div>
+</div>
+<div class="question-container">
+  <h2>3 - Which countries are landlocked?</h2>
+
+  <div class="answers-container">
+    <label>
+  <input type="checkbox" name="2-0" value="0">
+  Armenia
+</label>
+<label>
+  <input type="checkbox" name="2-1" value="1">
+  Bosnia and Herzegovina
+</label>
+<label>
+  <input type="checkbox" name="2-2" value="2">
+  Mongolia
+</label>
+<label>
+  <input type="checkbox" name="2-3" value="3">
+  Slovenia
+</label>
+
+  </div>
+</div>
+<div class="question-container">
+  <h2>4 - In Africa, there are more countries north of the equator than there are south.</h2>
+
+  <div class="answers-container">
+    <label>
+  <input type="radio" name="3" value="0">
+  True
+</label>
+<label>
+  <input type="radio" name="3" value="1">
+  False
+</label>
+
+  </div>
+</div>
+<div class="question-container">
+  <h2>5 - Mount Everest lies in which continent?</h2>
+
+  <div class="answers-container">
+    <label>
+  <input type="radio" name="4" value="0">
+  Asia
+</label>
+<label>
+  <input type="radio" name="4" value="1">
+  Europe
+</label>
+<label>
+  <input type="radio" name="4" value="2">
+  North America
+</label>
+<label>
+  <input type="radio" name="4" value="3">
+  Oceania
+</label>
+
+  </div>
+</div>
+<div class="question-container">
+  <h2>6 - The Indian Ocean is bordered by these continents.</h2>
+
+  <div class="answers-container">
+    <label>
+  <input type="checkbox" name="5-0" value="0">
+  Africa
+</label>
+<label>
+  <input type="checkbox" name="5-1" value="1">
+  Europe
+</label>
+<label>
+  <input type="checkbox" name="5-2" value="2">
+  North America
+</label>
+<label>
+  <input type="checkbox" name="5-3" value="3">
+  Asia
+</label>
+<label>
+  <input type="checkbox" name="5-4" value="4">
+  Oceania
+</label>
+<label>
+  <input type="checkbox" name="5-5" value="5">
+  South America
+</label>
+
+  </div>
+</div>
+<div class="question-container">
+  <h2>7 - Hawaii consists of how many islands?</h2>
+
+  <div class="answers-container">
+    <label>
+  <input type="radio" name="6" value="0">
+  56
+</label>
+<label>
+  <input type="radio" name="6" value="1">
+  102
+</label>
+<label>
+  <input type="radio" name="6" value="2">
+  137
+</label>
+<label>
+  <input type="radio" name="6" value="3">
+  185
+</label>
+
+  </div>
+</div>
+
+    
+      <input type="button" value="Check results" class="btn" id="submitQuiz">
+    </form>
+  </main>
+
+  <div class="modal hide" id="modal">
+    <div class="modal-contents">
+      <div class="modal-body" id="modalBody"></div>
+  
+      <button class="btn" id="closeModal">Close</button>
+    </div>
+  </div>
+
+  <script>
+    
+const quiz = [{question:"Which is the largest country by area?",answers:[{answer:"Brazil",isCorrect:false},{answer:"China",isCorrect:false},{answer:"Canada",isCorrect:true},{answer:"India",isCorrect:false},]},{question:"Mogadishu is the capital of which African country?",answers:[{answer:"Ethiopia",isCorrect:false},{answer:"Somalia",isCorrect:true},{answer:"Malawi",isCorrect:false},{answer:"Tanzania",isCorrect:false},]},{question:"Which countries are landlocked?",answers:[{answer:"Armenia",isCorrect:true},{answer:"Bosnia and Herzegovina",isCorrect:false},{answer:"Mongolia",isCorrect:true},{answer:"Slovenia",isCorrect:false},]},{question:"In Africa, there are more countries north of the equator than there are south.",answers:[{answer:"True",isCorrect:true},{answer:"False",isCorrect:false},]},{question:"Mount Everest lies in which continent?",answers:[{answer:"Asia",isCorrect:true},{answer:"Europe",isCorrect:false},{answer:"North America",isCorrect:false},{answer:"Oceania",isCorrect:false},]},{question:"The Indian Ocean is bordered by these continents.",answers:[{answer:"Africa",isCorrect:true},{answer:"Europe",isCorrect:false},{answer:"North America",isCorrect:false},{answer:"Asia",isCorrect:true},{answer:"Oceania",isCorrect:true},{answer:"South America",isCorrect:false},]},{question:"Hawaii consists of how many islands?",answers:[{answer:"56",isCorrect:false},{answer:"102",isCorrect:false},{answer:"137",isCorrect:true},{answer:"185",isCorrect:false},]},];
+
+function getQuizState() {
+  const inputs = document.querySelectorAll("input[type='radio'], input[type='checkbox']");
+  const quizState = {};
+
+  for (const i of inputs) {
+    const questionId = i.name.length > 1 ? i.name.split("-")[0] : i.name;
+
+    if (questionId in quizState) {
+      quizState[questionId].push(i.checked);
+    } else {
+      quizState[questionId] = [i.checked];
+    }
+  }
+  return quizState;
+}
+
+function allQuestionsAnswered(quizState) {
+  for (question in quizState) {
+    let answersGiven = 0;
+
+    for (answer of quizState[question]) {
+      answersGiven += answer ? 1 : 0;
+    }
+
+    if (answersGiven === 0) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+function getQuizResults(quizState) {
+  const quizResults = {};
+
+  for (question in quizState) {
+    quizResults[question] = { questionText: quiz[question].question, result: true };
+
+    for (answer in quizState[question]) {
+      if (quizState[question][answer] !== quiz[question].answers[answer].isCorrect) {
+        quizResults[question].result = false;
+      }
+    }
+  }
+
+  return quizResults;
+}
+
+function createTextElement(tag, text, className = null) {
+  const element = document.createElement(tag);
+  element.textContent = text;
+
+  if (className) {
+    element.classList.add(className);
+  }
+
+  return element;
+}
+
+function modal() {
+  const modalBox = document.querySelector("#modal");
+  const closeModal = document.querySelector("#closeModal");
+
+  const hideModal = () => {
+    modalBox.classList.add("hide");
+    closeModal.removeEventListener("click", hideModal);
+  }
+
+  modalBox.classList.remove("hide");
+  
+  closeModal.addEventListener("click", hideModal);
+}
+
+function outputQuizResults(quizResults) {
+  const modalBody = document.querySelector("#modalBody");
+  let total = 0;
+
+  modalBody.textContent = "";
+
+  modalBody.append(createTextElement("h2", "Results"));
+
+  for (index in quizResults) {
+    total += quizResults[index].result ? 1 : 0;
+
+    modalBody.append(
+      createTextElement(
+        "p",
+        `${Number(index) + 1} - ${quizResults[index].questionText}`,
+        quizResults[index].result ? "correct" : "incorrect"
+      )
+    );
+  }
+
+  const quizResultText = createTextElement("b", `You scored ${total}/${quiz.length}`);
+  const quizResultPara = document.createElement("p")
+
+  quizResultPara.classList.add("modal-result")
+  quizResultPara.append(quizResultText)
+  modalBody.append(quizResultPara);
+
+  modal();
+}
+
+function outputQuizError() {
+  const modalBody = document.querySelector("#modalBody");
+
+  modalBody.textContent = "";
+
+  modalBody.append(createTextElement("h2", "Error"));
+  modalBody.append(createTextElement("p", "Not all questions have been answered."));
+
+  modal();
+}
+
+function main() {
+  const submitButton = document.querySelector("#submitQuiz");
+
+  submitButton.addEventListener("click", () => {
+    const quizState = getQuizState(quizForm);
+
+    if (!allQuestionsAnswered(quizState)) {
+      outputQuizError();
+      return;
+    }
+
+    outputQuizResults(getQuizResults(quizState));
+  });
+}
+
+main();
+
+  </script>
+</body>
+</html>

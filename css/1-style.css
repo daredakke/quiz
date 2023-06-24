@@ -44,3 +44,9 @@ header {
 .btn:hover {
   background-color: darkred;
 }
+
+.answers-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}

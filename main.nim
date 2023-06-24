@@ -57,11 +57,11 @@ proc importQuizDataFromText(filePath: string): seq[Question] =
 
     elif currentLine[0] == '-':
       currentLine.removePrefix('-')
-      result[currentQuestion].answers.add(Answer(text: currentLine, isCorrect: false))
+      result[currentQuestion].answers.add(Answer(text: currentLine.strip(true, true), isCorrect: false))
 
     elif currentLine[0] == '*':
       currentLine.removePrefix('*')
-      result[currentQuestion].answers.add(Answer(text: currentLine, isCorrect: true))
+      result[currentQuestion].answers.add(Answer(text: currentLine.strip(true, true), isCorrect: true))
       result[currentQuestion].correctAnswerCount += 1
 
     else:

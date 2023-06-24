@@ -1,31 +1,41 @@
-Valid two answer one correct
-*True
--False
+Which is the largest country by area?
+- Brazil
+- China
+* Canada
+- India
 
-Valid three answer one correct
-*True
--False
--None of the above
+Mogadishu is the capital of which African country?
+- Ethiopia
+* Somalia
+- Malawi
+- Tanzania
 
-Valid five answer one correct no empty line preceding
-*Yes
--No
--Maybe
--Don't know
--Could you repeat the question?
+Which countries are landlocked?
+* Armenia
+- Bosnia and Herzegovina
+* Mongolia
+- Slovenia
 
-Valid four answer three correct
--One
-*Two
-*Three
-*Four
+In Africa, there are more countries north of the equator than there are south.
+* True
+- False
 
-I forgot to add the answers for this one
--True
-*False
+Mount Everest lies in which continent?
+* Asia
+- Europe
+- North America
+- Oceania
 
-Valid four answer one correct with spaces
--One
-*Two
--Three
--Four
+The Indian Ocean is bordered by these continents.
+* Africa
+- Europe
+- North America
+* Asia
+* Oceania
+- South America
+
+Hawaii consists of how many islands?
+- 56
+- 102
+* 137
+- 185

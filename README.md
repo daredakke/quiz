@@ -2,13 +2,13 @@
 
 A nim script that takes a multiple-choice quiz in a text document and turns it into a HTML form.
 
-A quiz is formatted as follows:
+A quiz is formatted as follows (no space is required after a `-` or `*`):
 
     What is the capital of Germany?
-    -Paris
-    *Berlin
-    -London
-    -Amsterdam
+    - Paris
+    * Berlin
+    - London
+    - Amsterdam
 
 - Questions may have any number of answers, but require at least two
 - Correct answers are marked with an asterisk

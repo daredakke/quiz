@@ -171,21 +171,11 @@ proc exportQuizWebPageToHTML(dirName: string, quizWebPage: string) =
 
 
 proc exportJavaScript(dirName: string, quizDataAsJavaScript: string) =
-  let
-    quizScriptSourceFile: File = open("js/quiz.js", fmRead)
-    quizScriptOutFile: File = open(&"{dirName}/js/quiz.js", fmWrite)
-    quizDataOutFile: File = open(&"{dirName}/js/quizData.js", fmWrite)
+  let quizDataOutFile: File = open(&"{dirName}/js/quizData.js", fmWrite)
 
-  var output: string
+  copyFile("js/quiz.js", &"{dirName}/js/quiz.js")
 
-  for line in quizScriptSourceFile.lines():
-    output &= line.strip(true, true)
-
-  quizScriptOutFile.write(output)
   quizDataOutFile.write(quizDataAsJavaScript)
-
-  quizScriptSourceFile.close()
-  quizScriptOutFile.close()
   quizDataOutFile.close()
 
 

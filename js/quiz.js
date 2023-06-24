@@ -34,11 +34,11 @@ function getQuizResults(quizState) {
   const quizResults = {};
 
   for (question in quizState) {
-    quizResults[question] = true;
+    quizResults[question] = { questionText: quiz[question].question, result: true };
 
     for (answer in quizState[question]) {
       if (quizState[question][answer] !== quiz[question].answers[answer].isCorrect) {
-        quizResults[question] = false;
+        quizResults[question].result = false;
       }
     }
   }
@@ -46,18 +46,70 @@ function getQuizResults(quizState) {
   return quizResults;
 }
 
-function outputQuizResults(quizResults) {
-  let total = 0;
-  let output = "";
+function createTextElement(tag, text, className = null) {
+  const element = document.createElement(tag);
+  element.textContent = text;
 
-  for (result in quizResults) {
-    total += quizResults[result] ? 1 : 0;
-    output += `${Number(result) + 1} - ${quizResults[result] ? "Correct" : "Wrong"}\n`
+  if (className) {
+    element.classList.add(className);
   }
 
-  output += `\nYou scored ${total}/${quiz.length}`;
+  return element;
+}
 
-  alert(output);
+function modal() {
+  const modalBox = document.querySelector("#modal");
+  const closeModal = document.querySelector("#closeModal");
+
+  const hideModal = () => {
+    modalBox.classList.add("hide");
+    closeModal.removeEventListener("click", hideModal);
+  }
+
+  modalBox.classList.remove("hide");
+  
+  closeModal.addEventListener("click", hideModal);
+}
+
+function outputQuizResults(quizResults) {
+  const modalBody = document.querySelector("#modalBody");
+  let total = 0;
+
+  modalBody.textContent = "";
+
+  modalBody.append(createTextElement("h2", "Results"));
+
+  for (index in quizResults) {
+    total += quizResults[index].result ? 1 : 0;
+
+    modalBody.append(
+      createTextElement(
+        "p",
+        `${Number(index) + 1} - ${quizResults[index].questionText}`,
+        quizResults[index].result ? "correct" : "incorrect"
+      )
+    );
+  }
+
+  const quizResultText = createTextElement("b", `You scored ${total}/${quiz.length}`);
+  const quizResultPara = document.createElement("p")
+
+  quizResultPara.classList.add("modal-result")
+  quizResultPara.append(quizResultText)
+  modalBody.append(quizResultPara);
+
+  modal();
+}
+
+function outputQuizError() {
+  const modalBody = document.querySelector("#modalBody");
+
+  modalBody.textContent = "";
+
+  modalBody.append(createTextElement("h2", "Error"));
+  modalBody.append(createTextElement("p", "Not all questions have been answered."));
+
+  modal();
 }
 
 function main() {
@@ -67,12 +119,11 @@ function main() {
     const quizState = getQuizState(quizForm);
 
     if (!allQuestionsAnswered(quizState)) {
-      alert("Not all questions have been answered");
+      outputQuizError();
       return;
     }
 
-    const quizResults = getQuizResults(quizState);
-    outputQuizResults(quizResults);
+    outputQuizResults(getQuizResults(quizState));
   });
 }
 

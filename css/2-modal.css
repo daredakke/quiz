@@ -1,0 +1,45 @@
+.modal {
+  background-color: hsla(0, 0%, 25%, 0.5);
+  position: fixed;
+  content: "";
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  z-index: 100;
+}
+
+.modal-contents {
+  background-color: white;
+  display: flex;
+  flex-direction: column;
+  max-width: 500px;
+  margin: 82px auto 0;
+  padding: 16px 16px 0;
+}
+
+.modal-contents h2 {
+  margin: 0;
+  text-align: center;
+}
+
+.modal-body {
+  flex: 1;
+}
+
+.modal-result {
+  margin-top: 28px;
+  text-align: center;
+}
+
+.correct {
+  color: green;
+}
+
+.incorrect {
+  color: crimson;
+}
+
+.hide {
+  display: none;
+}

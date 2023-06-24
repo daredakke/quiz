@@ -4,10 +4,12 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <title>{{quizTitle}}</title>
-  <link rel="stylesheet" href="css/style.css">
-  <script src="js/quizData.js" defer></script>
-  <script src="js/quiz.js" defer></script>
+
+  <style>
+{{stylesheet}}
+  </style>
 </head>
 <body>
   <header>
@@ -29,5 +31,9 @@
       <button class="btn" id="closeModal">Close</button>
     </div>
   </div>
+
+  <script>
+    {{script}}
+  </script>
 </body>
 </html>

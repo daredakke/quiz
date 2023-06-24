@@ -38,7 +38,8 @@ proc getSettingsFromUser(): tuple =
     raise newException(FileDoesNotExist, &"Cannot find {filePath}")
 
   result = (
-    quizTitle: quizTitle, 
+    quizTitle: quizTitle,
+    filename: quizTitle.replace(" ", "-").toLowerAscii(),
     filePath: filePath
   )
 
@@ -89,15 +90,13 @@ proc getHTMLTemplateAsString(path: string): string =
 
 # Piece HTML templates together into a single HTML document and embed quiz 
 # data into it
-proc buildQuizWebPageAsString(quiz: seq[Question], quizTitle: string, filePath: string): string =
+proc buildQuizWebpageAsString(quiz: seq[Question], quizTitle: string): string =
   let
     pageTemplate: string = getHTMLTemplateAsString("templates/page.html")
     questionTemplate: string = getHTMLTemplateAsString("templates/question.html")
     answerTemplate: string = getHTMLTemplateAsString("templates/answer.html")
 
-  var
-    stylesheets: string
-    idCounter: int
+  var idCounter: int
 
   for question in quiz:
     var
@@ -123,31 +122,12 @@ proc buildQuizWebPageAsString(quiz: seq[Question], quizTitle: string, filePath: 
 
     inc idCounter
 
-  if dirExists("css"):
-    for f in walkDir("css"):
-      let ext: string = f.path.splitFile().ext
-
-      if ext == ".css":
-        stylesheets &= &"<link rel=\"stylesheet\" href=\"{f.path}\">\n"
-
   result = pageTemplate
-    .replace("{{stylesheets}}", stylesheets)
     .replace("{{questions}}", result)
     .replace("{{quizTitle}}", quizTitle)
 
 
-proc createBuildDirStructure(dirName: string) =
-  if dirExists(dirName):
-    removeDir(dirName)
-
-  createDir(dirName)
-  createDir(&"{dirName}/js")
-
-  if dirExists("css"):
-    createDir(&"{dirName}/css")
-
-
-proc convertQuizDataToJavaScript(quiz: seq[Question]): string =
+proc getQuizDataAsJavaScriptString(quiz: seq[Question]): string =
   var data: string
 
   for question in quiz:
@@ -158,34 +138,23 @@ proc convertQuizDataToJavaScript(quiz: seq[Question]): string =
 
     data &= "]},"
 
-  result = &"const quiz = [{data}];"
+  result = &"\nconst quiz = [{data}];\n\n"
 
 
-# Create build directory and write the quiz HTML to a HTML document that 
-# reflects the title given to it
-proc exportQuizWebPageToHTML(dirName: string, quizWebPage: string) =
-  let outFile: File = open(&"{dirName}/quiz.html", fmWrite)
+proc getQuizJavaScriptAsString(): string =
+  let quizScript: File = open("js/quiz.js", fmRead)
 
-  outFile.write(quizWebPage)
-  outFile.close()
+  for line in quizScript.lines():
+    result &= &"{line}\n"
 
-
-proc exportJavaScript(dirName: string, quizDataAsJavaScript: string) =
-  let quizDataOutFile: File = open(&"{dirName}/js/quizData.js", fmWrite)
-
-  copyFile("js/quiz.js", &"{dirName}/js/quiz.js")
-
-  quizDataOutFile.write(quizDataAsJavaScript)
-  quizDataOutFile.close()
+  quizScript.close()
 
 
 # If CSS files are provided, merge them into a single minified style.css in 
 # the build directory
-proc exportCSS(dirName: string) =
+proc getStylesheetString(): string =
   if not dirExists("css"):
     return
-
-  var output: string
 
   for f in walkDir("css"):
     # Ignore any file that isn't a stylesheet
@@ -195,31 +164,47 @@ proc exportCSS(dirName: string) =
     let stylesheet: File = open(f.path, fmRead)
 
     for line in stylesheet.lines():
-      output &= line
-        .strip(true, true)
-        .replace(": ", ":")
-        .replace(" {", "{")
-  
-  let outFile: File = open(&"{dirName}/css/style.css", fmWrite)
+      result &= &"{line}\n"
 
-  outFile.write(output)
+    stylesheet.close()
+
+
+# Embed CSS and JS into the webpage
+proc embedFilesInWebpage(webpage: string, script: string, stylesheet: string): string =
+  result = webPage
+    .replace("{{script}}", script)
+    .replace("{{stylesheet}}", &"\n{stylesheet}")
+
+
+proc createQuizzesFolder() =
+  if not dirExists("quizzes"):
+    createDir("quizzes")
+  
+
+# Create build directory and write the quiz HTML to a HTML document that 
+# reflects the title given to it
+proc exportQuizWebpageToHTML(filename: string, webpage: string) =
+  let outFile: File = open(&"quizzes/{filename}.html", fmWrite)
+
+  outFile.write(webpage)
   outFile.close()
 
 
 proc main() =
   let
     settings: tuple = getSettingsFromUser()
-    dirName: string = settings.quizTitle.replace(" ", "-").toLowerAscii()
     quiz: seq[Question] = importQuizDataFromText(settings.filePath)
-    quizWebPage: string = buildQuizWebPageAsString(quiz, settings.quizTitle, settings.filePath)
-    quizDataAsJavaScript: string = convertQuizDataToJavaScript(quiz)
+    quizDataString: string = getQuizDataAsJavaScriptString(quiz)
+    quizScriptString: string = getQuizJavaScriptAsString()
+    combinedQuizScript: string = quizDataString & quizScriptString
+    stylesheetString: string = getStylesheetString()
+    quizWebpageBase: string = buildQuizWebpageAsString(quiz, settings.quizTitle)
+    quizWebpageComplete: string = embedFilesInWebpage(quizWebpageBase, combinedQuizScript, stylesheetString)
 
-  createBuildDirStructure(dirName)
-  exportQuizWebPageToHTML(dirName, quizWebPage)
-  exportJavaScript(dirName, quizDataAsJavaScript)
-  exportCSS(dirName)
+  createQuizzesFolder()
+  exportQuizWebpageToHTML(settings.filename, quizWebpageComplete)
 
-  echo &"\nQuiz exported to ./{dirName} directory\n"
+  echo &"\nQuiz exported to ./quizzes/{settings.filename}.html\n"
 
 
 main()

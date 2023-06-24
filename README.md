@@ -26,12 +26,12 @@ Ensure you have [Nim](https://nim-lang.org/) installed.
 Navigate to the `quiz` directory in your terminal and type `nim c -r main.nim`. You will be asked a series of questions.
 
 - "Please enter the name of the quiz" - e.g., `Cities of the World`
-  - The imported quiz will use this title as its directory name - e.g., `cities-of-the-world`
+  - The imported quiz will use this title as its filename - e.g., `cities-of-the-world`
 - "Please enter the file path of the quiz to be imported" - e.g., `quizzes/testquiz.txt`
   - The path of the quiz file relative to the `quiz` directory
 
-The quiz web page will then be output in a directory with a name reflecting its title alongside the executable with all dependencies.
+The quiz web page will then be output in the `exports` directory.
 
 ### CSS
 
-If you have a `css` directory present in the `quiz` directory, any CSS files inside will be merged and minified in the order that they appear in the directory before being written as a single stylesheet to the target directory and linked appropriately in the exported HTML file.
+If you have a `css` directory present in the `assets` directory, any CSS files inside will be merged in the order that they appear before being written as a single stylesheet in the exported HTML file.

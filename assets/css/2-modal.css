@@ -11,6 +11,7 @@
 
 .modal-contents {
   background-color: white;
+  border-radius: 7px;
   display: flex;
   flex-direction: column;
   max-width: 500px;

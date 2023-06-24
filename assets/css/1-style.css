@@ -31,6 +31,7 @@ header {
 .btn {
   background-color: crimson;
   border: 0;
+  border-radius: 7px;
   color: white;
   cursor: pointer;
   display: block;
